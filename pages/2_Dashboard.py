@@ -92,6 +92,7 @@ load_dotenv()
 
 # MongoDB Connection
 mongo_uri = os.getenv("MONGODB_URI")
+mongo_uri = st.secrets["MONGODB_URI"]
 
 try:
     client = MongoClient(mongo_uri)
