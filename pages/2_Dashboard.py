@@ -12,7 +12,6 @@ import uuid
 load_dotenv()
 
 mongo_uri = os.getenv("MONGODB_URI")
-mongo_uri = st.secrets["MONGODB_URI"]
 
 try:
     client = MongoClient(mongo_uri)
@@ -303,24 +302,31 @@ def get_users():
 
 st.title("API Management Dashboard")
 
-today = datetime.utcnow().date()
-default_start_date = today - timedelta(days=29)
+# --- Global Date Range Filter moved to sidebar ---
+with st.sidebar:
+    st.header("Global Filters")
+    today = datetime.utcnow().date()
+    default_start_date = today - timedelta(days=29)
+    
+    date_range = st.date_input(
+        "Select Date Range",
+        value=(default_start_date, today),
+        min_value=today - timedelta(days=365),
+        max_value=today,
+        key="global_date_range"
+    )
 
-date_range = st.date_input(
-    "Select Date Range",
-    value=(default_start_date, today),
-    min_value=today - timedelta(days=365),
-    max_value=today,
-    key="global_date_range"
-)
+    selected_start_date = date_range[0]
+    selected_end_date = date_range[1] if len(date_range) > 1 else date_range[0]
 
-selected_start_date = date_range[0]
-selected_end_date = date_range[1] if len(date_range) > 1 else date_range[0]
+    st.markdown("---")
+    
+    # Auto-refresh checkbox moved to sidebar
+    auto_refresh = st.checkbox("Enable Auto-Refresh (Every 60s)", value=False, key="auto_refresh_checkbox")
+    if auto_refresh:
+        from streamlit_extras.rerun_with_delay import rerun_with_delay
+        rerun_with_delay(delay_seconds=60)
 
-auto_refresh = st.checkbox("Enable Auto-Refresh (Every 60s)", value=False, key="auto_refresh_checkbox")
-if auto_refresh:
-    from streamlit_extras.rerun_with_delay import rerun_with_delay
-    rerun_with_delay(delay_seconds=60)
 
 df_logs = get_api_logs(start_date=selected_start_date, end_date=selected_end_date)
 df_logs = df_logs[df_logs['api'] != 'unknown_api'] 
