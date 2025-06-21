@@ -1,0 +1,13 @@
+streamlit
+langchain-core
+pymongo
+python-dotenv
+twilio
+matplotlib
+google-generativeai
+protobuf
+langchain
+langchain-groq
+twilio
+pandas
+plotly
